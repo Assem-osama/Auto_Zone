@@ -1,0 +1,6 @@
+@AutoZone_HostAddress = http://localhost:5108
+
+GET {{AutoZone_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

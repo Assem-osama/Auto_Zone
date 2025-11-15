@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36327.8 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoZone", "AutoZone\AutoZone.csproj", "{AB453361-4144-4343-A332-90F860E42682}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AB453361-4144-4343-A332-90F860E42682}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB453361-4144-4343-A332-90F860E42682}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB453361-4144-4343-A332-90F860E42682}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB453361-4144-4343-A332-90F860E42682}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FA0C240A-DD2D-4ADF-B7A7-BACEAB23E19C}
+	EndGlobalSection
+EndGlobal

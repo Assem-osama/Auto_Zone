@@ -1,0 +1,33 @@
+﻿# Build folders
+bin/
+obj/
+
+
+# User-specific files
+*.user
+*.rsuser
+*.suo
+*.cache
+.vs/
+.vs/
+.vs/*/*
+
+
+
+# Configuration
+appsettings.Development.json
+appsettings.Local.json
+
+
+# Logs
+*.log
+
+
+# EF Core
+Migrations/
+
+
+# Others
+*.db
+*.db-shm
+*.db-wal
