@@ -3,6 +3,7 @@ using AutoZone.DTOs.Car;
 using AutoZone.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace AutoZone.Controllers
 {
@@ -17,7 +18,8 @@ namespace AutoZone.Controllers
             _carService = carService;
         }
 
-        // ✅ Get all cars
+        [SwaggerOperation(Summary = "Get all cars", Description = "Returns a list of all cars.")]
+        [SwaggerResponse(200, "List of cars retrieved successfully")]
         [HttpGet]
         public async Task<IActionResult> GetAllCars()
         {
@@ -28,7 +30,9 @@ namespace AutoZone.Controllers
             return Ok(response.Data);
         }
 
-        // ✅ Get car by ID
+        [SwaggerOperation(Summary = "Get car by ID", Description = "Returns car details by ID.")]
+        [SwaggerResponse(200, "Car retrieved successfully")]
+        [SwaggerResponse(404, "Car not found")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCarById(int id)
         {
@@ -39,7 +43,9 @@ namespace AutoZone.Controllers
             return Ok(response.Data);
         }
 
-        // ✅ Create new car
+        [SwaggerOperation(Summary = "Create a new car", Description = "Creates a new car record. Requires authentication.")]
+        [SwaggerResponse(201, "Car created successfully")]
+        [SwaggerResponse(400, "Invalid input data")]
         [Authorize] // المستخدم لازم يكون مسجل
         [HttpPost]
         public async Task<IActionResult> CreateCar([FromBody] CreateCarDTO dto)
@@ -53,8 +59,9 @@ namespace AutoZone.Controllers
             return CreatedAtAction(nameof(GetCarById), new { id = response.Data.Id }, response.Data);
         }
 
-        // ✅ Update car
-        [Authorize]
+        [SwaggerOperation(Summary = "Update a car", Description = "Updates car details. Requires authentication.")]
+        [SwaggerResponse(204, "Car updated successfully")]
+        [SwaggerResponse(404, "Car not found")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCar(int id, [FromBody] UpdateCarDTO dto)
         {
@@ -65,7 +72,10 @@ namespace AutoZone.Controllers
             return NoContent();
         }
 
-        // ✅ Delete car
+
+        [SwaggerOperation(Summary = "Delete a car", Description = "Deletes a car. Requires authentication.")]
+        [SwaggerResponse(204, "Car deleted successfully")]
+        [SwaggerResponse(404, "Car not found")]
         [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCar(int id)

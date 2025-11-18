@@ -4,6 +4,7 @@ using AutoZone.Services;
 using AutoZone.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace AutoZone.Controllers
 {
@@ -19,7 +20,8 @@ namespace AutoZone.Controllers
             _rentalService = rentalService;
         }
 
-
+        [SwaggerOperation(Summary = "Get all rentals", Description = "Returns a list of all rentals.")]
+        [SwaggerResponse(200, "Rentals retrieved successfully")]
         [HttpGet]
         public async Task<IActionResult> GetAllRentals()
         {
@@ -27,7 +29,9 @@ namespace AutoZone.Controllers
             return Ok(response);
         }
 
-
+        [SwaggerOperation(Summary = "Get rental by ID", Description = "Returns rental details by ID.")]
+        [SwaggerResponse(200, "Rental retrieved successfully")]
+        [SwaggerResponse(404, "Rental not found")]
         [HttpGet("{id}")]
         public async Task<IActionResult>GetRentalById(int id)
         {
@@ -36,6 +40,9 @@ namespace AutoZone.Controllers
 
         }
 
+        [SwaggerOperation(Summary = "Create a rental", Description = "Creates a new rental. Requires authentication.")]
+        [SwaggerResponse(201, "Rental created successfully")]
+        [SwaggerResponse(400, "Invalid input data")]
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> CreateRental([FromBody] CreateRentalDTO rentalDTO)
@@ -49,6 +56,9 @@ namespace AutoZone.Controllers
 
         }
 
+        [SwaggerOperation(Summary = "Update a rental", Description = "Updates rental details. Requires authentication.")]
+        [SwaggerResponse(200, "Rental updated successfully")]
+        [SwaggerResponse(400, "Invalid input data")]
         [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult>UpdateRental(int id,[FromBody]UpdateRentalDTO rentalDTO)
@@ -63,6 +73,9 @@ namespace AutoZone.Controllers
             return response.Success ? Ok(response) : BadRequest(response);
         }
 
+        [SwaggerOperation(Summary = "Delete a rental", Description = "Deletes a rental. Requires authentication.")]
+        [SwaggerResponse(200, "Rental deleted successfully")]
+        [SwaggerResponse(400, "Could not delete rental")]
         [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRental(int id)

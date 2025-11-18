@@ -1,7 +1,5 @@
-﻿# Build folders
-bin/
 obj/
-
+bin/
 
 # User-specific files
 *.user
@@ -9,9 +7,6 @@ obj/
 *.suo
 *.cache
 .vs/
-.vs/
-.vs/*/*
-
 
 
 # Configuration

@@ -1,5 +1,4 @@
-﻿
-using System.Reflection.Emit;
+﻿using System.Reflection;
 using System.Text;
 using AutoZone.Models;
 using AutoZone.Services;
@@ -7,9 +6,11 @@ using AutoZone.Services.Interfaces;
 using AutoZone.UnitOfWorks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
-using static AutoZone.Models.Enum;
+using Microsoft.OpenApi;
+//using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace AutoZone
 {
@@ -19,22 +20,24 @@ namespace AutoZone
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // ------------------ DbContext ------------------
             builder.Services.AddDbContext<AutoZoneDbContext>(
-              options => options.UseSqlServer(builder.Configuration.GetConnectionString("AutoZoneDbContext")));
+                options => options.UseSqlServer(builder.Configuration.GetConnectionString("AutoZoneDbContext")));
 
-            
+            // ------------------ Services ------------------
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IAccountService, AccountService>();
             builder.Services.AddScoped<ICarService, CarService>();
             builder.Services.AddScoped<IRentalService, RentalService>();
 
+            // ------------------ AutoMapper ------------------
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-
-
+            // ------------------ JWT Authentication ------------------
             var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? builder.Configuration["Jwt:Key"];
-            if (string.IsNullOrWhiteSpace(jwtKey)) throw new Exception("JWT key not set. Set JWT_KEY env var or Jwt:Key in configuration.");
+            if (string.IsNullOrWhiteSpace(jwtKey))
+                throw new Exception("JWT key not set. Set JWT_KEY env var or Jwt:Key in configuration.");
             var key = Encoding.UTF8.GetBytes(jwtKey);
-
 
             builder.Services.AddAuthentication(options =>
             {
@@ -55,12 +58,10 @@ namespace AutoZone
                 };
             });
 
-            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-            // Configure CORS: prefer origins from configuration or environment variable 'ALLOWED_ORIGINS' (comma-separated)
+            // ------------------ CORS ------------------
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("DefaultCorsPolicy", policy =>
+                options.AddPolicy("AllowReact", policy =>
                 {
                     var origins = (Environment.GetEnvironmentVariable("ALLOWED_ORIGINS") ?? builder.Configuration["AllowedOrigins"]) ?? "";
                     if (!string.IsNullOrWhiteSpace(origins))
@@ -73,55 +74,114 @@ namespace AutoZone
                     }
                     else
                     {
-                        // Fallback to very restrictive default for safety
-                        policy.AllowAnyHeader().AllowAnyMethod().SetIsOriginAllowedToAllowWildcardSubdomains().AllowCredentials();
+                        policy.AllowAnyHeader()
+                              .AllowAnyMethod()
+                              .SetIsOriginAllowedToAllowWildcardSubdomains()
+                              .AllowCredentials();
                     }
                 });
             });
 
-
-
-
-            // Add services to the container.
-
+            // ------------------ Controllers ------------------
             builder.Services.AddControllers();
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddOpenApi();
 
+            // ------------------ Swagger with XML Documentation and JWT ------------------
+            var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen(c =>
+            {
+
+                c.IncludeXmlComments(xmlPath);
+                c.EnableAnnotations();
+
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "AutoZone API",
+                    Version = "v1",
+                    Description = "API for managing car sales and rentals",
+                    Contact = new OpenApiContact
+                    {
+                        Name = "Assem Osama",
+                        Email = "assemosama00@gmail.com"
+                    }
+                });
+
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "Enter 'Bearer' [space] and then your valid token."
+                });
+
+                //c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                //{
+                //    {
+                //        new OpenApiSecurityScheme
+                //        {
+                //            Reference = new OpenApiReference
+                //            {
+                //                Type = ReferenceType.SecurityScheme,
+                //                Id = "Bearer"
+                //            }
+                //        },
+                //        Array.Empty<string>()
+                //    }
+                //});
+            });
+
+            // ------------------ Build App ------------------
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.MapOpenApi();
-            }
+            // ------------------ Swagger UI ------------------
+            
+                app.UseSwagger();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "AutoZone API V1");
+                });
+            
+
+            // ------------------ Middleware ------------------
+            app.UseMiddleware<AutoZone.Middleware.ErrorHandlerMiddleware>();
 
             app.UseHttpsRedirection();
+            app.UseCors("AllowReact");
 
-            app.UseCors("DefaultCorsPolicy");
-
-            app.UseMiddleware<AutoZone.Middleware.ErrorHandlerMiddleware>();
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.MapControllers();
+            // ------------------ Map Controllers ------------------
+            try
+            {
+                app.MapControllers();
+            }
+            catch (ReflectionTypeLoadException ex)
+            {
+                foreach (var loaderException in ex.LoaderExceptions)
+                {
+                    Console.WriteLine(loaderException.Message);
+                }
+                throw;
+            }
 
-            //Seed Data in Database in run time
+            // ------------------ Seed Data ------------------
             using (var scope = app.Services.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<AutoZoneDbContext>();
-                // نجيب البيئة الحالية (Development ولا Production)
                 var env = app.Environment;
 
                 if (env.IsDevelopment())
                 {
-                    // ✅ شغّل الـ Seeder بس في الـ Development وبعد كدا لما تشغل البرنامج فعليا في لبرودكشن ابقا ضيف اليدمن الحقيقين في has data()
                     DbSeeder.SeedData(db);
                 }
             }
 
-
-
+            // ------------------ Run App ------------------
             app.Run();
         }
     }
