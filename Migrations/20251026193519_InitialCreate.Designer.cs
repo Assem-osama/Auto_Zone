@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AutoZone.Migrations
 {
-    [DbContext(typeof(AutoZoneDbContext))]
+    [DbContext(typeof(AutoZonedbContext))]
     [Migration("20251026193519_InitialCreate")]
     partial class InitialCreate
     {

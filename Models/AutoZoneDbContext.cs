@@ -3,11 +3,11 @@ using static AutoZone.Models.Enum;
 
 namespace AutoZone.Models
 {
-    public class AutoZoneDbContext : DbContext
+    public class AutoZonedbContext : DbContext
 
     {
 
-        public AutoZoneDbContext(DbContextOptions<AutoZoneDbContext> options)
+        public AutoZonedbContext(DbContextOptions<AutoZonedbContext> options)
         : base(options)
         {
         }
@@ -16,6 +16,8 @@ namespace AutoZone.Models
         public DbSet<Car> Cars { get; set; }
         public DbSet<Rental> Rentals { get; set; }
         public DbSet<User> Users { get; set; }
+
+        public DbSet<PaymentTransaction> PaymentTransactions { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

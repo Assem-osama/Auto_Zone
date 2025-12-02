@@ -3,9 +3,9 @@ using static AutoZone.Models.Enum;
 
 namespace AutoZone.Models
 {
-    public class DbSeeder
+    public class dbSeeder
     {
-        public static void SeedData(AutoZoneDbContext db)
+        public static void SeedData(AutoZonedbContext db)
         {
             db.Database.Migrate();
 

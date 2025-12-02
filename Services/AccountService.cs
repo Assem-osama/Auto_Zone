@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
+using AutoZone.Constants;
 using AutoZone.DTOs;
 using AutoZone.Models;
 using AutoZone.Services.Interfaces;
@@ -80,33 +81,32 @@ namespace AutoZone.Services
 
 
 
+
+
         private string GenerateJwtToken(User user)
         {
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role.ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
-
-
+                new Claim(ClaimTypesConstants.Role, user.Role.ToString()),
+                new Claim(ClaimTypesConstants.Id, user.Id.ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+            var expireDays = int.Parse(_configuration["Jwt:ExpireDays"]);
+
             var token = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddDays(3),
+                expires: DateTime.UtcNow.AddDays(expireDays),
                 signingCredentials: creds
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
-
-
     }
 }

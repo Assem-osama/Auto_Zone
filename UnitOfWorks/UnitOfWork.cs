@@ -4,20 +4,25 @@ using AutoZone.Repositories.Interfaces;
 using AutoZone.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+using Microsoft.Extensions.Options;
+
 namespace AutoZone.UnitOfWorks
 {
     public class UnitOfWork:IUnitOfWork
     {
-        private readonly AutoZoneDbContext db;
+        private readonly AutoZonedbContext db;
+        private readonly IOptions<StripeSettings> _stripeSettings;
 
-        public UnitOfWork(AutoZoneDbContext db)
+        public UnitOfWork(AutoZonedbContext db, IOptions<StripeSettings> stripeSettings)
         {
             this.db = db;
+            _stripeSettings = stripeSettings;
         }
 
         private ICarRepository _carRepo;
         private IUserRepository _userRepo;
         private IRentalRepository _rentalRepo;
+        private IPaymentTransactionRepository _paymentTransactionRepo;
 
         public ICarRepository Cars
         {
@@ -39,15 +44,19 @@ namespace AutoZone.UnitOfWorks
             }
         }
 
+        public IPaymentTransactionRepository PaymentTransactions
+        {
+            get
+            {
+                return _paymentTransactionRepo ??= new PaymentTransactionRepository(db, _stripeSettings);
+            }
+        }
         public async Task<int> SaveAsync()
         {
             return await db.SaveChangesAsync();
         }
 
-        public void Dispose()
-        {
-            db.Dispose();
-        }
+     
 
 
 

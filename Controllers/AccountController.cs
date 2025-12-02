@@ -17,6 +17,13 @@ namespace AutoZone.Controllers
             _accountService = accountService;
         }
 
+        /// <summary>
+        /// Register a new user
+        /// </summary>
+        /// <param name="registerDto">The registration details</param>
+        /// <returns>A success message if registration is successful</returns>
+        /// <response code="200">User registered successfully</response>
+        /// <response code="400">Invalid registration data</response>
         [SwaggerOperation(
             Summary = "Register a new user",
             Description = "Creates a new user account with the provided registration details."
@@ -30,6 +37,13 @@ namespace AutoZone.Controllers
             return response.Success ? Ok(response) : BadRequest(response);
         }
 
+        /// <summary>
+        /// Login user
+        /// </summary>
+        /// <param name="loginDto">The login credentials</param>
+        /// <returns>A JWT token if authentication is successful</returns>
+        /// <response code="200">Login successful</response>
+        /// <response code="400">Invalid credentials</response>
         [SwaggerOperation(
             Summary = "Login user",
             Description = "Authenticates a user and returns a JWT token if credentials are correct."

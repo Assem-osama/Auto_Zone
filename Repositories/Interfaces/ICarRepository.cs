@@ -1,4 +1,5 @@
-﻿using AutoZone.Models;
+﻿using AutoZone.DTOs;
+using AutoZone.Models;
 
 namespace AutoZone.Repositories.Interfaces
 {
@@ -9,5 +10,7 @@ namespace AutoZone.Repositories.Interfaces
         Task<IEnumerable<Car>> GetCarsForRentAsync();
         Task<IEnumerable<Car>> GetSoldCarsAsync();
         Task<IEnumerable<Car>> GetRentedCarsAsync();
+        
+        Task<PagedResult<Car>> GetCarsAsync(AutoZone.DTOs.Car.CarQueryParameters parameters);
     }
 }

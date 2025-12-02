@@ -20,6 +20,11 @@ namespace AutoZone.Controllers
             _rentalService = rentalService;
         }
 
+        /// <summary>
+        /// Get all rentals
+        /// </summary>
+        /// <returns>A list of all rentals</returns>
+        /// <response code="200">Rentals retrieved successfully</response>
         [SwaggerOperation(Summary = "Get all rentals", Description = "Returns a list of all rentals.")]
         [SwaggerResponse(200, "Rentals retrieved successfully")]
         [HttpGet]
@@ -29,6 +34,13 @@ namespace AutoZone.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Get rental by ID
+        /// </summary>
+        /// <param name="id">The rental ID</param>
+        /// <returns>The rental details</returns>
+        /// <response code="200">Rental retrieved successfully</response>
+        /// <response code="404">Rental not found</response>
         [SwaggerOperation(Summary = "Get rental by ID", Description = "Returns rental details by ID.")]
         [SwaggerResponse(200, "Rental retrieved successfully")]
         [SwaggerResponse(404, "Rental not found")]
@@ -40,6 +52,13 @@ namespace AutoZone.Controllers
 
         }
 
+        /// <summary>
+        /// Create a rental
+        /// </summary>
+        /// <param name="rentalDTO">The rental creation details</param>
+        /// <returns>The created rental</returns>
+        /// <response code="201">Rental created successfully</response>
+        /// <response code="400">Invalid input data</response>
         [SwaggerOperation(Summary = "Create a rental", Description = "Creates a new rental. Requires authentication.")]
         [SwaggerResponse(201, "Rental created successfully")]
         [SwaggerResponse(400, "Invalid input data")]
@@ -56,6 +75,14 @@ namespace AutoZone.Controllers
 
         }
 
+        /// <summary>
+        /// Update a rental
+        /// </summary>
+        /// <param name="id">The rental ID</param>
+        /// <param name="rentalDTO">The rental update details</param>
+        /// <returns>The updated rental</returns>
+        /// <response code="200">Rental updated successfully</response>
+        /// <response code="400">Invalid input data</response>
         [SwaggerOperation(Summary = "Update a rental", Description = "Updates rental details. Requires authentication.")]
         [SwaggerResponse(200, "Rental updated successfully")]
         [SwaggerResponse(400, "Invalid input data")]
@@ -73,6 +100,13 @@ namespace AutoZone.Controllers
             return response.Success ? Ok(response) : BadRequest(response);
         }
 
+        /// <summary>
+        /// Delete a rental
+        /// </summary>
+        /// <param name="id">The rental ID</param>
+        /// <returns>No content</returns>
+        /// <response code="200">Rental deleted successfully</response>
+        /// <response code="400">Could not delete rental</response>
         [SwaggerOperation(Summary = "Delete a rental", Description = "Deletes a rental. Requires authentication.")]
         [SwaggerResponse(200, "Rental deleted successfully")]
         [SwaggerResponse(400, "Could not delete rental")]

@@ -6,9 +6,9 @@ namespace AutoZone.Repositories
 {
     public class UserRepository:GenericRepository<User>, IUserRepository
     {
-        private readonly AutoZoneDbContext db;
+        private readonly AutoZonedbContext db;
 
-        public UserRepository(AutoZoneDbContext db):base(db)
+        public UserRepository(AutoZonedbContext db):base(db)
         {
             this.db = db;
         }

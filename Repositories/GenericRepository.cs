@@ -8,10 +8,10 @@ namespace AutoZone.Repositories
 {
     public class GenericRepository<TEntity>:IGenericRepository<TEntity> where TEntity : class
     {
-        private readonly AutoZoneDbContext db;
+        private readonly AutoZonedbContext db;
         private readonly DbSet<TEntity> _dbSet;
 
-        public GenericRepository(AutoZoneDbContext db)
+        public GenericRepository(AutoZonedbContext db)
         {
             this.db = db;
             _dbSet = db.Set<TEntity>();
@@ -65,6 +65,7 @@ namespace AutoZone.Repositories
         {
             await db.SaveChangesAsync();
         }
+
 
     }
 }

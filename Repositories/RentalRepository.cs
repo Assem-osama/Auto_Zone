@@ -6,9 +6,9 @@ namespace AutoZone.Repositories
 {
     public class RentalRepository : GenericRepository<Rental>, IRentalRepository
     {
-        private readonly AutoZoneDbContext db;
+        private readonly AutoZonedbContext db;
 
-        public RentalRepository(AutoZoneDbContext db) : base(db)
+        public RentalRepository(AutoZonedbContext db) : base(db)
         {
             this.db = db;
         }

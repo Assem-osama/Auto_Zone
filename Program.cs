@@ -7,10 +7,11 @@ using AutoZone.UnitOfWorks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi;
-//using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore;
 using Swashbuckle.AspNetCore.Annotations;
+using Stripe;
+
 
 namespace AutoZone
 {
@@ -20,15 +21,16 @@ namespace AutoZone
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // ------------------ DbContext ------------------
-            builder.Services.AddDbContext<AutoZoneDbContext>(
-                options => options.UseSqlServer(builder.Configuration.GetConnectionString("AutoZoneDbContext")));
+            // ------------------ dbContext ------------------
+            builder.Services.AddDbContext<AutoZonedbContext>(
+                options => options.UseSqlServer(builder.Configuration.GetConnectionString("AutoZonedbContext")));
 
             // ------------------ Services ------------------
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<IAccountService, AccountService>();
+            builder.Services.AddScoped<IAccountService,AutoZone.Services.AccountService>();
             builder.Services.AddScoped<ICarService, CarService>();
             builder.Services.AddScoped<IRentalService, RentalService>();
+            builder.Services.AddScoped<IPaymentService, PaymentService>();
 
             // ------------------ AutoMapper ------------------
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -82,6 +84,14 @@ namespace AutoZone
                 });
             });
 
+            // ------------------ Stripe Configuration ------------------
+
+            // قراءة مفاتيح Stripe من Configuration
+            var stripeSection = builder.Configuration.GetSection("Stripe");
+            StripeConfiguration.ApiKey = stripeSection.GetValue<string>("SecretKey");
+
+            builder.Services.Configure<StripeSettings>(stripeSection);
+
             // ------------------ Controllers ------------------
             builder.Services.AddControllers();
 
@@ -110,7 +120,7 @@ namespace AutoZone
 
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
-                    Name = "Authorization",
+                    Name = "Aut horization",
                     Type = SecuritySchemeType.Http,
                     Scheme = "Bearer",
                     BearerFormat = "JWT",
@@ -118,20 +128,20 @@ namespace AutoZone
                     Description = "Enter 'Bearer' [space] and then your valid token."
                 });
 
-                //c.AddSecurityRequirement(new OpenApiSecurityRequirement
-                //{
-                //    {
-                //        new OpenApiSecurityScheme
-                //        {
-                //            Reference = new OpenApiReference
-                //            {
-                //                Type = ReferenceType.SecurityScheme,
-                //                Id = "Bearer"
-                //            }
-                //        },
-                //        Array.Empty<string>()
-                //    }
-                //});
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
             });
 
             // ------------------ Build App ------------------
@@ -172,12 +182,12 @@ namespace AutoZone
             // ------------------ Seed Data ------------------
             using (var scope = app.Services.CreateScope())
             {
-                var db = scope.ServiceProvider.GetRequiredService<AutoZoneDbContext>();
+                var db = scope.ServiceProvider.GetRequiredService<AutoZonedbContext>();
                 var env = app.Environment;
 
                 if (env.IsDevelopment())
                 {
-                    DbSeeder.SeedData(db);
+                    dbSeeder.SeedData(db);
                 }
             }
 

@@ -12,6 +12,9 @@ bin/
 # Configuration
 appsettings.Development.json
 appsettings.Local.json
+appsettings.json
+appsettings.*.json
+
 
 
 # Logs

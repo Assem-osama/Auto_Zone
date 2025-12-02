@@ -22,13 +22,30 @@ namespace AutoZone.Middleware
             {
                 await _next(context);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                _logger.LogError(ex, "Unhandled exception");
-                context.Response.StatusCode = 500;
-                context.Response.ContentType = "application/json";
-                var resp = new { message = "Internal server error" };
-                await context.Response.WriteAsJsonAsync(resp);
+                var response = context.Response;
+                response.ContentType = "application/json";
+
+                switch (ex)
+                {
+                    case AutoZone.Exceptions.ValidationException e:
+                        // custom application error
+                        response.StatusCode = StatusCodes.Status400BadRequest;
+                        await response.WriteAsJsonAsync(new { message = e.Message });
+                        break;
+                    case AutoZone.Exceptions.NotFoundException e:
+                        // not found error
+                        response.StatusCode = StatusCodes.Status404NotFound;
+                        await response.WriteAsJsonAsync(new { message = e.Message });
+                        break;
+                    default:
+                        // unhandled error
+                        _logger.LogError(ex, "Unhandled exception");
+                        response.StatusCode = StatusCodes.Status500InternalServerError;
+                        await response.WriteAsJsonAsync(new { message = "Internal server error" });
+                        break;
+                }
             }
         }
     }

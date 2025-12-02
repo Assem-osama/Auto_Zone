@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoZone.DTOs;
 using AutoZone.DTOs.Car;
 using AutoZone.Models;
 using AutoZone.Services.Interfaces;
@@ -17,11 +18,19 @@ namespace AutoZone.Services
             _mapper = mapper;
         }
 
-        public async Task<ServiceResponse<IEnumerable<CarDTO>>> GetAllCarsAsync()
+        public async Task<ServiceResponse<PagedResult<CarDTO>>> GetAllCarsAsync(CarQueryParameters parameters)
         {
-            var cars = await _unitOfWork.Cars.GetAllAsync();
-            var dtoList = _mapper.Map<IEnumerable<CarDTO>>(cars);
-            return ServiceResponse<IEnumerable<CarDTO>>.SuccessResponse(dtoList);
+            var pagedCars = await _unitOfWork.Cars.GetCarsAsync(parameters);
+            var carDtos = _mapper.Map<IEnumerable<CarDTO>>(pagedCars.Items);
+            
+            var result = new PagedResult<CarDTO>(
+                carDtos, 
+                pagedCars.TotalCount, 
+                pagedCars.PageNumber, 
+                pagedCars.PageSize
+            );
+
+            return ServiceResponse<PagedResult<CarDTO>>.SuccessResponse(result);
         }
 
         public async Task<ServiceResponse<CarDTO>> GetCarByIdAsync(int id)
